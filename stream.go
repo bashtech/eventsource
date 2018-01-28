@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"net"
 )
 
 // Stream handles a connection for receiving Server Sent Events.
@@ -56,7 +57,19 @@ func Subscribe(url, lastEventId string) (*Stream, error) {
 // SubscribeWithRequest will take an http.Request to setup the stream, allowing custom headers
 // to be specified, authentication to be configured, etc.
 func SubscribeWithRequest(lastEventId string, request *http.Request) (*Stream, error) {
-	return SubscribeWith(lastEventId, http.DefaultClient, request)
+	c := &http.Client{
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+			IdleConnTimeout: 5 * time.Second,
+		},
+	}
+	return SubscribeWith(lastEventId, c, request)
 }
 
 // SubscribeWith takes a http client and request providing customization over both headers and
