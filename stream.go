@@ -100,7 +100,7 @@ func (stream *Stream) Close() {
 // connectHTTP connects to an event stream using the provided http request and client
 func connectHTTP(lastEventID string, client *http.Client, request *http.Request) func(string) (io.ReadCloser, error) {
 	return func(lastEvtID string) (io.ReadCloser, error) {
-		client.CheckRedirect = checkRedirect
+		//client.CheckRedirect = checkRedirect
 
 		request.Header.Set("Cache-Control", "no-cache")
 		request.Header.Set("Accept", "text/event-stream")
